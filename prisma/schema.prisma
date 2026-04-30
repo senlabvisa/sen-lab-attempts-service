@@ -1,0 +1,42 @@
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../node_modules/.prisma/client"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["attempts_svc"]
+}
+
+enum AttemptStatus {
+  started
+  completed
+  failed
+
+  @@schema("attempts_svc")
+}
+
+model Attempt {
+  id             String        @id @default(uuid())
+  studentId      String
+  simulationId   String
+  assignmentId   String?
+  status         AttemptStatus @default(started)
+  score          Int?
+  dataJson       Json          @default("{}")
+  teacherComment String?
+  teacherRubric  Json?
+  publishedAt    DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  syncedAt       DateTime?
+
+  @@index([studentId])
+  @@index([simulationId])
+  @@index([assignmentId])
+  @@index([status])
+  @@map("attempts")
+  @@schema("attempts_svc")
+}
